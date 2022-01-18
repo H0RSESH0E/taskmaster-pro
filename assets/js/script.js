@@ -3,10 +3,12 @@ var tasks = {};
 var createTask = function(taskText, taskDate, taskList) {
   // create elements that make up a task item
   var taskLi = $("<li>").addClass("list-group-item");
+  
   var taskSpan = $("<span>")
     .addClass("badge badge-primary badge-pill")
     .text(taskDate);
-  var taskP = $("<p>")
+  
+    var taskP = $("<p>")
     .addClass("m-1")
     .text(taskText);
 
@@ -20,7 +22,7 @@ var createTask = function(taskText, taskDate, taskList) {
 
 var loadTasks = function() {
   tasks = JSON.parse(localStorage.getItem("tasks"));
-
+console.log(tasks);
   // if nothing in localStorage, create a new object to track all task status arrays
   if (!tasks) {
     tasks = {
@@ -45,8 +47,48 @@ var saveTasks = function() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
 
+$(".list-group").on("click", "p", function() {
+  var text = $(this).text();
+  console.log(text);
+  var textInput = $("<textarea>")
+    .addClass("form-control")
+    .val(text);
+  $(this).replaceWith(textInput);
+  textInput.trigger("focus");
+});
 
+$(".list-group").on("blur", "textarea", function() {
+// get the textarea's current value/text
+var text = $(this)
+  .val()
+  .trim();
+  console.log(text, " this is the text");
 
+// get the parent ul's id attribute
+var status = $(this)
+  .closest(".list-group")
+  .attr("id")
+  .replace("list-", "");
+  console.log(status," this is the status");
+
+// get the task's position in the list of other li elements
+var index = $(this)
+  .closest(".list-group-item")
+  .index();
+  console.log(index, " this is the index");
+
+  tasks[status][index].text = text;
+  saveTasks();
+
+  // recreate p element
+  var taskP = $("<p>")
+    .addClass("m-1")
+    .text(text);
+
+  // replace textarea with p element
+  $(this).replaceWith(taskP);
+
+});
 
 // modal was triggered
 $("#task-form-modal").on("show.bs.modal", function() {
